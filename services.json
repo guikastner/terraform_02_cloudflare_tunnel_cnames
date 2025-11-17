@@ -1,0 +1,32 @@
+{
+  "node4": {
+    "subdomain": "node4",
+    "port": 1893,
+    "origin_protocol": "http"
+  },
+  "widget": {
+    "subdomain": "widget",
+    "port": 1902,
+    "origin_protocol": "http"
+  },
+  "casaos": {
+    "subdomain": "casaos",
+    "port": 8082,
+    "origin_protocol": "http"
+  },
+  "adguard": {
+    "subdomain": "adguard",
+    "port": 3001,
+    "origin_protocol": "http"
+  },
+  "minio": {
+    "subdomain": "minio",
+    "port": 9011,
+    "origin_protocol": "http"
+  },
+  "minio2": {
+    "subdomain": "minio2",
+    "port": 9010,
+    "origin_protocol": "http"
+  }
+}

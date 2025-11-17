@@ -1,0 +1,7 @@
+api_token  = "cf_api_token"
+account_id = "0123456789abcdef0123456789abcdef"
+zone_id    = "abcdef0123456789abcdef0123456789"
+zone_name  = "example.com"
+origin_address = "192.168.0.66"
+proxied        = false
+tunnel_id  = "11111111-2222-3333-4444-555555555555"

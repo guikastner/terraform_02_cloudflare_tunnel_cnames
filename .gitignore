@@ -1,0 +1,37 @@
+# Environment / secrets
+.env
+
+# Terraform / OpenTofu working directories
+**/.terraform/*
+**/.terraform.d/*
+**/.tofu/*
+
+# State files
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Terraform variable files (can contain secrets)
+*.tfvars
+*.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# Local override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+.tofurc
+tofu.rc
+
+# Plan / apply artifacts
+*.tfplan
+*.plan
