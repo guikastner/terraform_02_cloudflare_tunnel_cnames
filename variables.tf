@@ -28,7 +28,7 @@ variable "origin_address" {
 variable "proxied" {
   description = "Define se os registros CNAME ficam 'proxied' (nuvem laranja). Use false para expor diretamente e evitar cache/inspeção."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "tunnel_id" {
