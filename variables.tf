@@ -31,7 +31,8 @@ variable "proxied" {
   default     = true
 }
 
-variable "tunnel_id" {
-  description = "Identifier of the existing tunnel that terminates at this host."
+variable "tunnel_name" {
+  description = "Nome do Cloudflare Tunnel/Container que será criado automaticamente."
   type        = string
+  default     = "cloudflarecasaos"
 }

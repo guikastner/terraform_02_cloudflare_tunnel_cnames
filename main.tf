@@ -6,6 +6,14 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 4.0"
     }
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 3.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -13,10 +21,13 @@ provider "cloudflare" {
   api_token = var.api_token
 }
 
+provider "docker" {}
+
+provider "random" {}
+
 locals {
   services_file    = "${path.module}/services.json"
   services         = jsondecode(file(local.services_file))
-  tunnel_hostname  = "${var.tunnel_id}.cfargotunnel.com"
   normalized_services = {
     for name, svc in local.services :
     name => {
@@ -33,20 +44,40 @@ locals {
   ]
 }
 
+resource "random_id" "tunnel_secret" {
+  byte_length = 32
+}
+
+resource "cloudflare_zero_trust_tunnel_cloudflared" "cloudflared" {
+  account_id = var.account_id
+  name       = var.tunnel_name
+  secret     = random_id.tunnel_secret.b64_std
+}
+
+resource "docker_image" "cloudflared" {
+  name         = "cloudflare/cloudflared:latest"
+  keep_locally = false
+}
+
+resource "docker_network" "cloudflared_bridge" {
+  name   = "${var.tunnel_name}-bridge"
+  driver = "bridge"
+}
+
 resource "cloudflare_record" "tunnel_cname" {
   for_each = local.normalized_services
 
   zone_id = var.zone_id
   name    = each.value.label
   type    = "CNAME"
-  content = local.tunnel_hostname
+  content = format("%s.cfargotunnel.com", cloudflare_zero_trust_tunnel_cloudflared.cloudflared.id)
   proxied = var.proxied
   comment = "Managed by Terraform for ${each.value.hostname}"
 }
 
 resource "cloudflare_zero_trust_tunnel_cloudflared_config" "this" {
   account_id = var.account_id
-  tunnel_id  = var.tunnel_id
+  tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.cloudflared.id
 
   config {
     dynamic "ingress_rule" {
@@ -61,4 +92,32 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "this" {
       service = "http_status:404"
     }
   }
+}
+
+resource "docker_container" "cloudflarecasaos" {
+  name         = var.tunnel_name
+  image        = docker_image.cloudflared.image_id
+  restart      = "unless-stopped"
+
+  networks_advanced {
+    name = docker_network.cloudflared_bridge.name
+  }
+
+  host {
+    host = "host.docker.internal"
+    ip   = var.origin_address
+  }
+
+  command = [
+    "tunnel",
+    "--no-autoupdate",
+    "run",
+    "--token",
+    cloudflare_zero_trust_tunnel_cloudflared.cloudflared.tunnel_token
+  ]
+
+  depends_on = [
+    cloudflare_zero_trust_tunnel_cloudflared_config.this,
+    docker_network.cloudflared_bridge
+  ]
 }

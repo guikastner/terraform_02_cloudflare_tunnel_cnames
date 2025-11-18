@@ -4,4 +4,4 @@ zone_id    = "abcdef0123456789abcdef0123456789"
 zone_name  = "example.com"
 origin_address = "192.168.0.66"
 proxied        = true
-tunnel_id  = "11111111-2222-3333-4444-555555555555"
+tunnel_name = "cloudflarecasaos"
