@@ -34,14 +34,10 @@
     "port": 1884,
     "origin_protocol": "http"
   },
-  "headscale": {
-    "subdomain": "headscale",
-    "port": 8080,
-    "origin_protocol": "http"
-  },
   "headplane": {
     "subdomain": "headplane",
     "port": 3000,
-    "origin_protocol": "http"
-  } 
+    "origin_protocol": "http",
+    "origin_address": "127.0.0.1"
+  }
 }

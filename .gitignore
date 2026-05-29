@@ -1,6 +1,8 @@
 # Environment / secrets
 .env
 
+*codex*
+
 # Terraform / OpenTofu working directories
 **/.terraform/*
 **/.terraform.d/*

@@ -26,8 +26,8 @@ provider "docker" {}
 provider "random" {}
 
 locals {
-  services_file    = "${path.module}/services.json"
-  services         = jsondecode(file(local.services_file))
+  services_file = "${path.module}/services.json"
+  services      = jsondecode(file(local.services_file))
   normalized_services = {
     for name, svc in local.services :
     name => {
@@ -57,11 +57,6 @@ resource "cloudflare_zero_trust_tunnel_cloudflared" "cloudflared" {
 resource "docker_image" "cloudflared" {
   name         = "cloudflare/cloudflared:latest"
   keep_locally = false
-}
-
-resource "docker_network" "cloudflared_bridge" {
-  name   = "${var.tunnel_name}-bridge"
-  driver = "bridge"
 }
 
 resource "cloudflare_record" "tunnel_cname" {
@@ -98,26 +93,19 @@ resource "docker_container" "cloudflarecasaos" {
   name         = var.tunnel_name
   image        = docker_image.cloudflared.image_id
   restart      = "unless-stopped"
-
-  networks_advanced {
-    name = docker_network.cloudflared_bridge.name
-  }
-
-  host {
-    host = "host.docker.internal"
-    ip   = var.origin_address
-  }
+  network_mode = "host"
 
   command = [
     "tunnel",
     "--no-autoupdate",
+    "--protocol",
+    "http2",
     "run",
     "--token",
     cloudflare_zero_trust_tunnel_cloudflared.cloudflared.tunnel_token
   ]
 
   depends_on = [
-    cloudflare_zero_trust_tunnel_cloudflared_config.this,
-    docker_network.cloudflared_bridge
+    cloudflare_zero_trust_tunnel_cloudflared_config.this
   ]
 }

@@ -31,7 +31,7 @@ Infrastructure as code project that provisions every DNS record and tunneling ru
    ```
 5. Optionally store the other variables in `.env` and load them with `set -a; source .env; set +a`.
 
-Terraform also creates a dedicated Docker `bridge` network (`<tunnel_name>-bridge`) and connects the `cloudflared` container to it with the `host.docker.internal` alias mapped to whatever you pass via `origin_address` (ex.: `192.168.0.66`). Use that hostname in each service or set the raw IP if you prefer.
+Terraform runs the managed `cloudflared` container with `network_mode = "host"` and `--protocol http2`. This lets tunnel rules target services bound only to host loopback, such as `127.0.0.1:8080`, while still allowing other services to use the default `origin_address` (ex.: `192.168.0.66`). Individual services can override the target with `origin_address`.
 
 ## Main variables
 - `api_token` &mdash; Cloudflare API token (pass via `TF_VAR_api_token` to keep it secret).
@@ -71,7 +71,7 @@ Terraform also creates a dedicated Docker `bridge` network (`<tunnel_name>-bridg
 ```
 
 ## How Cloudflare tunneling works
-1. Terraform creates the `cloudflarecasaos` tunnel, provisions the `<tunnel_name>-bridge` network, requests a token, and starts the `cloudflared` container on that network.
+1. Terraform creates the `cloudflarecasaos` tunnel, requests a token, and starts the `cloudflared` container on the host network using the HTTP/2 connector protocol.
 2. Each hostname defined here becomes a CNAME that points to `<generated_tunnel_id>.cfargotunnel.com`.
 3. When a client resolves `app.example.com`, the DNS response directs it to Cloudflare's network, which already knows how to reach your `cloudflared` instance.
 4. The `cloudflare_zero_trust_tunnel_cloudflared_config` resource keeps the ingress rules synced so that Cloudflare forwards `app.example.com` traffic to `origin_protocol://origin_address:port`.
