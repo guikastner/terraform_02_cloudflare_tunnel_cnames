@@ -28,5 +28,20 @@
     "subdomain": "minio2",
     "port": 9010,
     "origin_protocol": "http"
-  }
+  },
+  "nodeuvw": {
+    "subdomain": "nodeuvw",
+    "port": 1884,
+    "origin_protocol": "http"
+  },
+  "headscale": {
+    "subdomain": "headscale",
+    "port": 8080,
+    "origin_protocol": "http"
+  },
+  "headplane": {
+    "subdomain": "headplane",
+    "port": 3000,
+    "origin_protocol": "http"
+  } 
 }
